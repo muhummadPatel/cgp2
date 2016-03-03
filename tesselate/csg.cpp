@@ -29,6 +29,22 @@ bool Scene::genVizRender(View * view, ShapeDrawData &sdd)
     // TO DO HERE, traverse csg tree pushing leaf nodes (shapes) to leaves vector
     // note: this displays all the constituent shapes in the tree but doesn't apply any set operations to them
     // so it is purely a pre-visualization
+    if(csgroot != NULL){
+        std::vector<SceneNode*> to_visit;
+        to_visit.push_back(csgroot);
+
+        while(!to_visit.empty()){
+            SceneNode* curr = to_visit[to_visit.size()-1];
+            to_visit.erase(to_visit.begin() + (to_visit.size()-1));
+
+            if(OpNode* op = dynamic_cast<OpNode*>(curr)){
+                to_visit.push_back(op->right);
+                to_visit.push_back(op->left);
+            }else if(ShapeNode* shp = dynamic_cast<ShapeNode*>(curr)){
+                leaves.push_back(shp);
+            }
+        }
+    }
 
     // traverse leaf shapes generating geometry
     for(i = 0; i < (int) leaves.size(); i++)
@@ -95,6 +111,8 @@ Scene::Scene()
     voldiag = cgp::Vector(20.0f, 20.0f, 20.0f);
     voxsidelen = 0.0f;
     voxactive = false;
+
+    sampleScene(); // TODO: remove
 }
 
 Scene::~Scene()

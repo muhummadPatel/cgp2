@@ -67,12 +67,16 @@ void VoxelVolume::getDim(int &dimx, int &dimy, int &dimz)
 void VoxelVolume::setDim(int &dimx, int &dimy, int &dimz)
 {
     // stub, needs completing
-    int total_bits = dimx * dimy * dimz;
+    xdim = dimx;
+    ydim = dimy;
+    zdim = dimz;
+
+    int total_bits = xdim * ydim * zdim;
     int bits_per_int = sizeof(int) * 8;
     int ints_required = (int)(((1.0 * total_bits) / bits_per_int) + 0.5);
 
     voxgrid = new int[ints_required];
-    
+
     fill(false);
 
     calcCellDiag();
@@ -94,6 +98,17 @@ void VoxelVolume::setFrame(cgp::Point corner, cgp::Vector diag)
 bool VoxelVolume::set(int x, int y, int z, bool setval)
 {
     // stub, needs completing
+    int bit_to_set = (xdim * ydim * z) + (zdim * y) + x;
+    int voxel_index = bit_to_set / (sizeof(int) * 8.0);
+    int offset = bit_to_set % (sizeof(int) * 8);
+
+    int* v = &voxgrid[voxel_index];
+    if(setval){
+        *v |= (1u << offset);
+    }else{
+        *v &= ~(1u << offset);
+    }
+
     return true;
 }
 

@@ -42,6 +42,13 @@ void VoxelVolume::clear()
 void VoxelVolume::fill(bool setval)
 {
     // stub, needs completing
+    for(int i = 0; i < sizeof(voxgrid)/sizeof(int); i++){
+        if(setval){
+            voxgrid[i] = ~0u;
+        }else{
+            voxgrid[i] = 0u;
+        }
+    }
 }
 
 void VoxelVolume::calcCellDiag()
@@ -60,6 +67,13 @@ void VoxelVolume::getDim(int &dimx, int &dimy, int &dimz)
 void VoxelVolume::setDim(int &dimx, int &dimy, int &dimz)
 {
     // stub, needs completing
+    int total_bits = dimx * dimy * dimz;
+    int bits_per_int = sizeof(int) * 8;
+    int ints_required = (int)(((1.0 * total_bits) / bits_per_int) + 0.5);
+
+    voxgrid = new int[ints_required];
+    
+    fill(false);
 
     calcCellDiag();
 }

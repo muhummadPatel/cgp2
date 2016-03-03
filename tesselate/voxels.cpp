@@ -115,7 +115,13 @@ bool VoxelVolume::set(int x, int y, int z, bool setval)
 bool VoxelVolume::get(int x, int y, int z)
 {
     // stub, needs completing
-    return true;
+    int bit_to_set = (xdim * ydim * z) + (ydim * y) + x;
+    int voxel_index = bit_to_set / (sizeof(int) * 8.0);
+    int offset = bit_to_set % (sizeof(int) * 8);
+
+    int v = voxgrid[voxel_index];
+    bool bit = (v >> offset) & 1u;
+    return bit;
 }
 
 cgp::Point VoxelVolume::getVoxelPos(int x, int y, int z)

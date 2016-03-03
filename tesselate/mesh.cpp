@@ -37,8 +37,14 @@ void Sphere::genGeometry(ShapeGeometry * geom, View * view)
 
 bool Sphere::pointContainment(cgp::Point pnt)
 {
-    // stub, needs completing
-    return true;
+    cgp::Vector delvec;
+
+    delvec.diff(c, pnt);
+    if(delvec.sqrdlength() < r*r){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 void Cylinder::genGeometry(ShapeGeometry * geom, View * view)
@@ -564,7 +570,7 @@ bool Mesh::pointContainment(cgp::Point pnt)
         else // point is inside
             incount++;
     }
-    
+
     // consensus wins
     return (incount > outcount);
 }

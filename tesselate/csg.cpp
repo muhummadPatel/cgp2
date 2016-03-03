@@ -111,8 +111,6 @@ Scene::Scene()
     voldiag = cgp::Vector(20.0f, 20.0f, 20.0f);
     voxsidelen = 0.0f;
     voxactive = false;
-
-    sampleScene(); // TODO: remove
 }
 
 Scene::~Scene()
@@ -160,12 +158,17 @@ bool Scene::bindGeometry(View * view, ShapeDrawData &sdd)
 void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
 {
     // stub, needs completing
+
+    // Perform the op on the given VoxelVolumes and "return" the result in VoxelVolumes
 }
 
 void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
 {
     // stub, needs completing
     // will require dynamic casting of SceneNode pointers
+
+    // Do pointContainment test for every shape
+    // Traverse the tree and call voxSetOp on each opNode from the bottom up
 }
 
 void Scene::voxelise(float voxlen)

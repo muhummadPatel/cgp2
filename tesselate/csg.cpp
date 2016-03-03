@@ -127,6 +127,24 @@ void Scene::clear()
 
     // TO DO HERE, code to walk csg tree and deallocate nodes
     // will require dynamic casting of SceneNode pointers
+    // TODO Why does it look like this never gets called?
+    cerr << "!!!***><deleting><***!!!" << endl;
+    if(csgroot != NULL){
+        std::vector<SceneNode*> to_delete;
+        to_delete.push_back(csgroot);
+
+        while(!to_delete.empty()){
+            SceneNode* curr = to_delete[to_delete.size()-1];
+            to_delete.erase(to_delete.begin() + (to_delete.size()-1));
+
+            if(OpNode* op = dynamic_cast<OpNode*>(curr)){
+                to_delete.push_back(op->right);
+                to_delete.push_back(op->left);
+            }
+
+            delete curr;
+        }
+    }
 }
 
 bool Scene::bindGeometry(View * view, ShapeDrawData &sdd)

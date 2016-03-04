@@ -160,34 +160,7 @@ void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
     // stub, needs completing
 
     // Perform the op on the given VoxelVolumes and "return" the result in VoxelVolumes
-}
-
-VoxelVolume* Scene::genVoxVol(ShapeNode* shapeN){
-    cgp::Point corner;
-    cgp::Vector diag;
-    vox.getFrame(corner, diag);
-
-    int xdim, ydim, zdim;
-    vox.getDim(xdim, ydim, zdim);
-
-    VoxelVolume* shapeVox = new VoxelVolume(xdim, ydim, zdim, corner, diag);
-
-    for(int x = 0; x < xdim; x++){
-        for(int y = 0; y < ydim; y++){
-            for(int z = 0; z < zdim; z++){
-                if(shapeN->shape->pointContainment(cgp::Point(x, y, z))){
-                    shapeVox->set(x, y, z, true);
-                    cerr << "1";
-                }else{
-                    shapeVox->set(x, y, z, false);
-                    cerr << "0";
-                }
-            }
-            cerr << endl;
-        }
-    }
-
-    return shapeVox;
+    cerr << "Operation: " << (int)op << endl;
 }
 
 void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
@@ -197,13 +170,35 @@ void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
 
     // Do pointContainment test for every shape
     // Traverse the tree and call voxSetOp on each opNode from the bottom up
-
+    cerr << "Walking" << endl;
     if(ShapeNode* shpNode = dynamic_cast<ShapeNode*>(root)){
-        voxels = genVoxVol(shpNode);
-        return;
+        int xdim, ydim, zdim;
+        voxels->getDim(xdim, ydim, zdim);
+
+        for(int x = 0; x < xdim; x+=10){
+            for(int y = 0; y < ydim; y+=10){
+                for(int z = 0; z < zdim; z+=10){
+                    if(shpNode->shape->pointContainment(voxels->getVoxelPos(x, y, z))){
+                        voxels->set(x, y, z, true);
+                    }else{
+                        voxels->set(x, y, z, false);
+                    }
+                }
+            }
+        }
+
+        cerr << "ShapeNode" << endl;
     }else if(OpNode* opNode = dynamic_cast<OpNode*>(root)){
+        cgp::Point corner;
+        cgp::Vector diag;
+        vox.getFrame(corner, diag);
+
+        int xdim, ydim, zdim;
+        vox.getDim(xdim, ydim, zdim);
+        cerr << "dims" << xdim << " X " << ydim << " X " << zdim << endl;
+        VoxelVolume* voxR = new VoxelVolume(xdim, ydim, zdim, corner, diag);
+
         voxWalk(opNode->left, voxels);
-        VoxelVolume* voxR = NULL;
         voxWalk(opNode->right, voxR);
 
         voxSetOp(opNode->op, voxels, voxR);
@@ -255,6 +250,7 @@ void Scene::sampleScene()
     diff->right = cyl2;
 
     csgroot = diff;
+    csgroot = sph;
 }
 
 void Scene::expensiveScene()

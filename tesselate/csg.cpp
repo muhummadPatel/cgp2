@@ -165,9 +165,9 @@ void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
     // Perform the op on the given VoxelVolumes and "return" the result in VoxelVolumes
     if(op == SetOp::UNION){
         cerr << "UNION" << endl;
-        for(int x = 0; x < xdim; x+=10){
-            for(int y = 0; y < ydim; y+=10){
-                for(int z = 0; z < zdim; z+=10){
+        for(int x = 0; x < xdim; x++){
+            for(int y = 0; y < ydim; y++){
+                for(int z = 0; z < zdim; z++){
                     if(leftarg->get(x, y, z) || rightarg->get(x, y, z)){
                         leftarg->set(x, y, z, true);
                     }else{
@@ -178,9 +178,9 @@ void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
         }
     }else if(op == SetOp::INTERSECTION){
         cerr << "INTERSECTION" << endl;
-        for(int x = 0; x < xdim; x+=10){
-            for(int y = 0; y < ydim; y+=10){
-                for(int z = 0; z < zdim; z+=10){
+        for(int x = 0; x < xdim; x++){
+            for(int y = 0; y < ydim; y++){
+                for(int z = 0; z < zdim; z++){
                     if(leftarg->get(x, y, z) && rightarg->get(x, y, z)){
                         leftarg->set(x, y, z, true);
                     }else{
@@ -192,9 +192,9 @@ void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
     }else if(op == SetOp::DIFFERENCE){
         cerr << "DIFFERENCE" << endl;
         cerr << "UNION" << endl;
-        for(int x = 0; x < xdim; x+=10){
-            for(int y = 0; y < ydim; y+=10){
-                for(int z = 0; z < zdim; z+=10){
+        for(int x = 0; x < xdim; x++){
+            for(int y = 0; y < ydim; y++){
+                for(int z = 0; z < zdim; z++){
                     if(leftarg->get(x, y, z) && (!rightarg->get(x, y, z))){
                         leftarg->set(x, y, z, true);
                     }else{
@@ -218,9 +218,9 @@ void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
         int xdim, ydim, zdim;
         voxels->getDim(xdim, ydim, zdim);
 
-        for(int x = 0; x < xdim; x+=10){
-            for(int y = 0; y < ydim; y+=10){
-                for(int z = 0; z < zdim; z+=10){
+        for(int x = 0; x < xdim; x++){
+            for(int y = 0; y < ydim; y++){
+                for(int z = 0; z < zdim; z++){
                     if(shpNode->shape->pointContainment(voxels->getVoxelPos(x, y, z))){
                         voxels->set(x, y, z, true);
                     }else{

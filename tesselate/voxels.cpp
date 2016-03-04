@@ -42,7 +42,11 @@ void VoxelVolume::clear()
 void VoxelVolume::fill(bool setval)
 {
     // stub, needs completing
-    for(int i = 0; i < sizeof(voxgrid)/sizeof(int); i++){
+    int total_bits = xdim * ydim * zdim;
+    int bits_per_int = sizeof(int) * 8;
+    int ints_required = (int)(((1.0 * total_bits) / bits_per_int) + 0.5);
+
+    for(int i = 0; i < ints_required; i++){
         if(setval){
             voxgrid[i] = ~0u;
         }else{

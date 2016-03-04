@@ -159,8 +159,51 @@ void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
 {
     // stub, needs completing
 
+    int xdim, ydim, zdim;
+    leftarg->getDim(xdim, ydim, zdim);
+
     // Perform the op on the given VoxelVolumes and "return" the result in VoxelVolumes
-    cerr << "Operation: " << (int)op << endl;
+    if(op == SetOp::UNION){
+        cerr << "UNION" << endl;
+        for(int x = 0; x < xdim; x+=10){
+            for(int y = 0; y < ydim; y+=10){
+                for(int z = 0; z < zdim; z+=10){
+                    if(leftarg->get(x, y, z) || rightarg->get(x, y, z)){
+                        leftarg->set(x, y, z, true);
+                    }else{
+                        leftarg->set(x, y, z, false);
+                    }
+                }
+            }
+        }
+    }else if(op == SetOp::INTERSECTION){
+        cerr << "INTERSECTION" << endl;
+        for(int x = 0; x < xdim; x+=10){
+            for(int y = 0; y < ydim; y+=10){
+                for(int z = 0; z < zdim; z+=10){
+                    if(leftarg->get(x, y, z) && rightarg->get(x, y, z)){
+                        leftarg->set(x, y, z, true);
+                    }else{
+                        leftarg->set(x, y, z, false);
+                    }
+                }
+            }
+        }
+    }else if(op == SetOp::DIFFERENCE){
+        cerr << "DIFFERENCE" << endl;
+        cerr << "UNION" << endl;
+        for(int x = 0; x < xdim; x+=10){
+            for(int y = 0; y < ydim; y+=10){
+                for(int z = 0; z < zdim; z+=10){
+                    if(leftarg->get(x, y, z) && (!rightarg->get(x, y, z))){
+                        leftarg->set(x, y, z, true);
+                    }else{
+                        leftarg->set(x, y, z, false);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
@@ -195,7 +238,6 @@ void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
 
         int xdim, ydim, zdim;
         vox.getDim(xdim, ydim, zdim);
-        cerr << "dims" << xdim << " X " << ydim << " X " << zdim << endl;
         VoxelVolume* voxR = new VoxelVolume(xdim, ydim, zdim, corner, diag);
 
         voxWalk(opNode->left, voxels);
@@ -250,7 +292,6 @@ void Scene::sampleScene()
     diff->right = cyl2;
 
     csgroot = diff;
-    csgroot = sph;
 }
 
 void Scene::expensiveScene()

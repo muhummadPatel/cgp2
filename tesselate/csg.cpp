@@ -244,6 +244,8 @@ void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
         voxWalk(opNode->right, voxR);
 
         voxSetOp(opNode->op, voxels, voxR);
+
+        delete voxR;
     }
 }
 

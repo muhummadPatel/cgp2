@@ -1,6 +1,7 @@
 set(TEST_SOURCES
     testutil.cpp
     test_mesh.cpp
+    test_scene.cpp
     tilertest.cpp
 )
 
@@ -16,10 +17,10 @@ else()
     set(NO_WHOLE_ARCHIVE "-Wl,--no-whole-archive")
 endif()
 
-target_link_libraries(tilertest tess 
-    ${WHOLE_ARCHIVE} ${TEST_LIBS} 
-    ${NO_WHOLE_ARCHIVE} 
-    ${CppUnit_LIBRARIES} 
+target_link_libraries(tilertest tess
+    ${WHOLE_ARCHIVE} ${TEST_LIBS}
+    ${NO_WHOLE_ARCHIVE}
+    ${CppUnit_LIBRARIES}
     ${Boost_SERIALIZATION_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}

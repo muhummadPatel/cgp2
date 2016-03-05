@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <cstdint>
 #include <sstream>
+#include <regex>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -138,6 +139,23 @@ void TestScene::testVoxelise3Shape(){
     CPPUNIT_ASSERT(scene->vox.get(xdim/2, (ydim/2)+65, zdim/2) == 0);
 
     cerr << "VOXELISE 3 SHAPE CSG TREE TEST PASSED" << endl << endl;
+}
+
+void TestScene::testVoxeliseEmptyTree(){
+    // Redirect cerr to stringstream so we can inspect it
+    std::ostringstream oss;
+    std::streambuf* orig_buf(cerr.rdbuf(oss.rdbuf()));
+    scene->voxelise(0.1f); // try to voxelise an empty csg tree
+    cerr.rdbuf(orig_buf); // Reset cerr to print to the screen
+
+    const string output = oss.str();
+    cerr << output; // Show the user the captured output
+
+    // look for expected output telling user that the tree was empty
+    std::regex regex("CSG tree empty\\.");
+    std::smatch match;
+    bool found_match = std::regex_search(output.begin(), output.end(), match, regex);
+    CPPUNIT_ASSERT(found_match);
 }
 
 //#if 0 /* Disabled since it crashes the whole test suite */

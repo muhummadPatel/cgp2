@@ -20,6 +20,7 @@ class TestScene : public CppUnit::TestFixture
     CPPUNIT_TEST(testVoxelise1Shape);
     CPPUNIT_TEST(testVoxelise2Shape);
     CPPUNIT_TEST(testVoxelise3Shape);
+    CPPUNIT_TEST(testVoxeliseEmptyTree);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -62,6 +63,11 @@ public:
      * Test that a csg tree with 3 shapes is properly voxelised
      */
     void testVoxelise3Shape();
+
+    /**
+     * Test that an empty csg tree throws no errors when we try to voxelise it
+     */
+    void testVoxeliseEmptyTree();
 };
 
 #endif /* !TILER_TEST_SCENE_H */

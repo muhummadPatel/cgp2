@@ -255,6 +255,8 @@ void Scene::voxelise(float voxlen)
     // actual recursive depth-first walk of csg tree
     if(csgroot != NULL)
         voxWalk(csgroot, &vox);
+    else
+        cerr << "CSG tree empty." << endl;
 }
 
 void Scene::testSetOpScene(SetOp op){

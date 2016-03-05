@@ -123,26 +123,11 @@ void Scene::clear()
     geom.clear();
     vox.clear();
 
-    // TO DO HERE, code to walk csg tree and deallocate nodes
-    // will require dynamic casting of SceneNode pointers
-    // TODO Why does it look like this never gets called?
-    cerr << "!!!***><deleting><***!!!" << endl;
-    if(csgroot != NULL){
-        std::vector<SceneNode*> to_delete;
-        to_delete.push_back(csgroot);
-
-        while(!to_delete.empty()){
-            SceneNode* curr = to_delete[to_delete.size()-1];
-            to_delete.erase(to_delete.begin() + (to_delete.size()-1));
-
-            if(OpNode* op = dynamic_cast<OpNode*>(curr)){
-                to_delete.push_back(op->right);
-                to_delete.push_back(op->left);
-            }
-
-            delete curr;
-        }
-    }
+    // This is sufficient to deallocate the tree because the destructor of the root node
+    // will cascade down calling the destructor of all branches. I tested this by adding print statements
+    // to the destructor methods of the ShapeNode and OpNode classes and verifying that all
+    // allocated shapes and operations were altually being deleted.
+    delete csgroot;
 }
 
 bool Scene::bindGeometry(View * view, ShapeDrawData &sdd)
@@ -270,6 +255,52 @@ void Scene::voxelise(float voxlen)
     // actual recursive depth-first walk of csg tree
     if(csgroot != NULL)
         voxWalk(csgroot, &vox);
+}
+
+void Scene::testSetOpScene(SetOp op){
+    ShapeNode * sph = new ShapeNode();
+    sph->shape = new Sphere(cgp::Point(0.0f, 0.0f, 0.0f), 4.0f);
+
+    ShapeNode * cyl1 = new ShapeNode();
+    cyl1->shape = new Cylinder(cgp::Point(-7.0f, -7.0f, 0.0f), cgp::Point(7.0f, 7.0f, 0.0f), 2.0f);
+
+    OpNode * operation = new OpNode();
+    operation->op = op;
+    operation->left = sph;
+    operation->right = cyl1;
+
+    csgroot = operation;
+}
+
+void Scene::testVoxeliseScene(int shapes, SetOp op1, SetOp op2){
+    ShapeNode * sph = new ShapeNode();
+    sph->shape = new Sphere(cgp::Point(0.0f, 0.0f, 0.0f), 4.0f);
+    if(shapes == 1){
+        csgroot = sph;
+        return;
+    }
+
+    ShapeNode * cyl1 = new ShapeNode();
+    cyl1->shape = new Cylinder(cgp::Point(-7.0f, 0.0f, 0.0f), cgp::Point(7.0f, 0.0f, 0.0f), 2.0f);
+
+    OpNode * operation1 = new OpNode();
+    operation1->op = op1;
+    operation1->left = sph;
+    operation1->right = cyl1;
+    if(shapes == 2){
+        csgroot = operation1;
+        return;
+    }
+
+    ShapeNode * cyl2 = new ShapeNode();
+    cyl2->shape = new Cylinder(cgp::Point(0.0f, -7.0f, 0.0f), cgp::Point(0.0f, 7.0f, 0.0f), 2.0f);
+
+    OpNode * operation2 = new OpNode();
+    operation2->op = op2;
+    operation2->left = operation1;
+    operation2->right = cyl2;
+
+    csgroot = operation2;
 }
 
 void Scene::sampleScene()

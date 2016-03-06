@@ -51,16 +51,22 @@ public:
 
     /**
      * Test that a csg tree with 1 shape is properly voxelised
+     * This should test that the tree traveral code is working properly and the
+     * tree nodes are beng correctly evaluated.
      */
     void testVoxelise1Shape();
 
     /**
      * Test that a csg tree with 2 shapes is properly voxelised
+     * This should test that the tree traveral code is working properly and the
+     * tree nodes are beng correctly evaluated.
      */
     void testVoxelise2Shape();
 
     /**
      * Test that a csg tree with 3 shapes is properly voxelised
+     * This should test that the tree traveral code is working properly and the
+     * tree nodes are beng correctly evaluated.
      */
     void testVoxelise3Shape();
 

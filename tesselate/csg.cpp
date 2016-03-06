@@ -26,9 +26,10 @@ bool Scene::genVizRender(View * view, ShapeDrawData &sdd)
     geom.clear();
     geom.setColour(defaultCol);
 
-    // TO DO HERE, traverse csg tree pushing leaf nodes (shapes) to leaves vector
     // note: this displays all the constituent shapes in the tree but doesn't apply any set operations to them
     // so it is purely a pre-visualization
+    // Walk through the csg tree if it's not empty and push all shapeNodes that
+    // we encounter into the leaves vector to be rendered.
     if(csgroot != NULL){
         std::vector<SceneNode*> to_visit;
         to_visit.push_back(csgroot);
@@ -142,49 +143,35 @@ bool Scene::bindGeometry(View * view, ShapeDrawData &sdd)
 
 void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
 {
-    // stub, needs completing
-
+    // Get the dimensions of the left VoxelVolume (for use as the loop extents)
     int xdim, ydim, zdim;
     leftarg->getDim(xdim, ydim, zdim);
 
-    // Perform the op on the given VoxelVolumes and "return" the result in VoxelVolumes
+    // Perform the requested op on the given VoxelVolumes and "return" the result in the leftarg
     if(op == SetOp::UNION){
-        cerr << "UNION" << endl;
         for(int x = 0; x < xdim; x++){
             for(int y = 0; y < ydim; y++){
                 for(int z = 0; z < zdim; z++){
-                    if(leftarg->get(x, y, z) || rightarg->get(x, y, z)){
-                        leftarg->set(x, y, z, true);
-                    }else{
-                        leftarg->set(x, y, z, false);
-                    }
+                    bool val = (leftarg->get(x, y, z) || rightarg->get(x, y, z));
+                    leftarg->set(x, y, z, val);
                 }
             }
         }
     }else if(op == SetOp::INTERSECTION){
-        cerr << "INTERSECTION" << endl;
         for(int x = 0; x < xdim; x++){
             for(int y = 0; y < ydim; y++){
                 for(int z = 0; z < zdim; z++){
-                    if(leftarg->get(x, y, z) && rightarg->get(x, y, z)){
-                        leftarg->set(x, y, z, true);
-                    }else{
-                        leftarg->set(x, y, z, false);
-                    }
+                    bool val = (leftarg->get(x, y, z) && rightarg->get(x, y, z));
+                    leftarg->set(x, y, z, val);
                 }
             }
         }
     }else if(op == SetOp::DIFFERENCE){
-        cerr << "DIFFERENCE" << endl;
-        cerr << "UNION" << endl;
         for(int x = 0; x < xdim; x++){
             for(int y = 0; y < ydim; y++){
                 for(int z = 0; z < zdim; z++){
-                    if(leftarg->get(x, y, z) && (!rightarg->get(x, y, z))){
-                        leftarg->set(x, y, z, true);
-                    }else{
-                        leftarg->set(x, y, z, false);
-                    }
+                    bool val = (leftarg->get(x, y, z) && (!rightarg->get(x, y, z)));
+                    leftarg->set(x, y, z, val);
                 }
             }
         }
@@ -193,30 +180,27 @@ void Scene::voxSetOp(SetOp op, VoxelVolume *leftarg, VoxelVolume *rightarg)
 
 void Scene::voxWalk(SceneNode *root, VoxelVolume *voxels)
 {
-    // stub, needs completing
-    // will require dynamic casting of SceneNode pointers
-
     // Do pointContainment test for every shape
-    // Traverse the tree and call voxSetOp on each opNode from the bottom up
-    cerr << "Walking" << endl;
+    // Traverse the tree and call voxSetOp on each opNode
     if(ShapeNode* shpNode = dynamic_cast<ShapeNode*>(root)){
+        // If we have a shapeNode, then voxelise the shape and store the result in voxels
+
         int xdim, ydim, zdim;
         voxels->getDim(xdim, ydim, zdim);
 
         for(int x = 0; x < xdim; x++){
             for(int y = 0; y < ydim; y++){
                 for(int z = 0; z < zdim; z++){
-                    if(shpNode->shape->pointContainment(voxels->getVoxelPos(x, y, z))){
-                        voxels->set(x, y, z, true);
-                    }else{
-                        voxels->set(x, y, z, false);
-                    }
+                    bool val = (shpNode->shape->pointContainment(voxels->getVoxelPos(x, y, z)));
+                    voxels->set(x, y, z, val);
                 }
             }
         }
-
-        cerr << "ShapeNode" << endl;
     }else if(OpNode* opNode = dynamic_cast<OpNode*>(root)){
+        // If we have an opNode, we need to make recursive voxWalk calls to the left and right subtrees.
+        // We then evaluate the op on the left and right voxelVolumes and the result
+        // VoxelVolume of the operation is stored in the "voxels" voxelVolume passed in as an arg.
+
         cgp::Point corner;
         cgp::Vector diag;
         vox.getFrame(corner, diag);
@@ -260,21 +244,26 @@ void Scene::voxelise(float voxlen)
 }
 
 void Scene::testSetOpScene(SetOp op){
+    // A Sphere in the centre of the world with radius 4
     ShapeNode * sph = new ShapeNode();
     sph->shape = new Sphere(cgp::Point(0.0f, 0.0f, 0.0f), 4.0f);
 
+    // A cylinder going from (-7, -7, 0) to (7, 7, 0) with a radius of 2
     ShapeNode * cyl1 = new ShapeNode();
     cyl1->shape = new Cylinder(cgp::Point(-7.0f, -7.0f, 0.0f), cgp::Point(7.0f, 7.0f, 0.0f), 2.0f);
 
+    // Perform the requested operation on the two nodes
     OpNode * operation = new OpNode();
     operation->op = op;
     operation->left = sph;
     operation->right = cyl1;
 
+    // Set the root of the csg tree to the requested operation
     csgroot = operation;
 }
 
 void Scene::testVoxeliseScene(int shapes, SetOp op1, SetOp op2){
+    // A sphere in the centre of the world, with radius 4
     ShapeNode * sph = new ShapeNode();
     sph->shape = new Sphere(cgp::Point(0.0f, 0.0f, 0.0f), 4.0f);
     if(shapes == 1){
@@ -282,9 +271,11 @@ void Scene::testVoxeliseScene(int shapes, SetOp op1, SetOp op2){
         return;
     }
 
+    // A cylinder from (-7, 0, 0) to (7, 0, 0), with radius 2
     ShapeNode * cyl1 = new ShapeNode();
     cyl1->shape = new Cylinder(cgp::Point(-7.0f, 0.0f, 0.0f), cgp::Point(7.0f, 0.0f, 0.0f), 2.0f);
 
+    // Operation between first 2 shapes
     OpNode * operation1 = new OpNode();
     operation1->op = op1;
     operation1->left = sph;
@@ -294,9 +285,11 @@ void Scene::testVoxeliseScene(int shapes, SetOp op1, SetOp op2){
         return;
     }
 
+    // A cylinder from (0, -7, 0) to (0, 7, 0), with radius 2
     ShapeNode * cyl2 = new ShapeNode();
     cyl2->shape = new Cylinder(cgp::Point(0.0f, -7.0f, 0.0f), cgp::Point(0.0f, 7.0f, 0.0f), 2.0f);
 
+    // Operation between result of first operation and the third shape (cyl2)
     OpNode * operation2 = new OpNode();
     operation2->op = op2;
     operation2->left = operation1;

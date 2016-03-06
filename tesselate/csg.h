@@ -136,12 +136,16 @@ public:
     void voxelise(float voxlen);
 
     /**
-     *  Creates a scene to test the union set operator.
+     * Creates a scene to test the union set operator.
+     * @param op    The set operation to perform for the test
      */
     void testSetOpScene(SetOp op);
 
     /**
-     *  Creates a scene to test the voxelise method.
+     * Creates a scene to test the voxelise method.
+     * @param shapes    The number of shapes to add to the csg tree
+     * @param op1   The operation to perform between the first 2 shapes(if applicable)
+     * @param op2   The operation to perform between the result of op1 and the 3rd shape shape(if applicable)
      */
     void testVoxeliseScene(int shapes, SetOp op1=SetOp::UNION, SetOp op2=SetOp::UNION);
 

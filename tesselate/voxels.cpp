@@ -41,12 +41,7 @@ void VoxelVolume::clear()
 
 void VoxelVolume::fill(bool setval)
 {
-    // stub, needs completing
-    int total_bits = xdim * ydim * zdim;
-    int bits_per_int = sizeof(int) * 8;
-    int ints_required = (int)(((1.0 * total_bits) / bits_per_int) + 0.5);
-
-    for(int i = 0; i < ints_required; i++){
+    for(int i = 0; i < grid_len; i++){
         if(setval){
             voxgrid[i] = ~0u;
         }else{
@@ -70,16 +65,16 @@ void VoxelVolume::getDim(int &dimx, int &dimy, int &dimz)
 
 void VoxelVolume::setDim(int &dimx, int &dimy, int &dimz)
 {
-    // stub, needs completing
-    xdim = dimx;
-    ydim = dimy;
-    zdim = dimz;
+    // Clear the voxgrid and update it's dimensions
+    clear();
+    xdim = dimx; ydim = dimy; zdim = dimz;
 
+    // allocate the required memory and fill it with 0's
     int total_bits = xdim * ydim * zdim;
     int bits_per_int = sizeof(int) * 8;
-    int ints_required = (int)(((1.0 * total_bits) / bits_per_int) + 0.5);
+    grid_len = (int)(((1.0 * total_bits) / bits_per_int) + 0.5);
 
-    voxgrid = new int[ints_required];
+    voxgrid = new int[grid_len];
 
     fill(false);
 
@@ -101,16 +96,16 @@ void VoxelVolume::setFrame(cgp::Point corner, cgp::Vector diag)
 
 bool VoxelVolume::set(int x, int y, int z, bool setval)
 {
-    // stub, needs completing
+    // Figure out which bit in which int we need to set
     int bit_to_set = (xdim * ydim * z) + (zdim * y) + x;
     int voxel_index = bit_to_set / (sizeof(int) * 8.0);
     int offset = bit_to_set % (sizeof(int) * 8);
 
     int* v = &voxgrid[voxel_index];
     if(setval){
-        *v |= (1u << offset);
+        *v |= (1u << offset); // Turn the bit on
     }else{
-        *v &= ~(1u << offset);
+        *v &= ~(1u << offset); // Switch the bit off
     }
 
     return true;
@@ -118,13 +113,13 @@ bool VoxelVolume::set(int x, int y, int z, bool setval)
 
 bool VoxelVolume::get(int x, int y, int z)
 {
-    // stub, needs completing
+    // Which bit in which int do we need to get
     int bit_to_set = (xdim * ydim * z) + (ydim * y) + x;
     int voxel_index = bit_to_set / (sizeof(int) * 8.0);
     int offset = bit_to_set % (sizeof(int) * 8);
 
     int v = voxgrid[voxel_index];
-    bool bit = (v >> offset) & 1u;
+    bool bit = (v >> offset) & 1u; // Extract the requested bit from the int
     return bit;
 }
 

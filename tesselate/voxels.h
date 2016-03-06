@@ -19,6 +19,7 @@ class VoxelVolume
 {
 private:
     int * voxgrid;  ///< flattened voxel volume, bit packed to save memory
+    int grid_len;   ///< the length of the flattened, bit-packed voxel-volume
     int xdim;       ///< number of voxels in x dimension
     int ydim;       ///< number of voxels in y dimension
     int zdim;       ///< number of voxels in z dimension
@@ -107,7 +108,7 @@ public:
     /**
      * Find the world-space position of the centre of a voxel
      * @param x, y, z   3D location, zero indexed
-     * @returns voxel centre point 
+     * @returns voxel centre point
      */
     cgp::Point getVoxelPos(int x, int y, int z);
 };

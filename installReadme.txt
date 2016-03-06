@@ -1,6 +1,6 @@
 Requirements:
 -------------
-These are requirements for Ubuntu. In each case, I've listed where to get the software 
+These are requirements for Ubuntu. In each case, I've listed where to get the software
 for Ubuntu 12.04. For newer versions of Ubuntu you might not need all the PPAs.
 
 CMake 2.8.7+, make, automake 1.9, pkg-config, doxygen, GLUT:
